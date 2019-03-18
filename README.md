@@ -2,6 +2,7 @@
 
 - Electron: https://electronjs.org/
 - Electron is a framework for creating native applications with web technologies like JavaScript, HTML, and CSS.
+- Reference: [Electron IN ACTION](https://www.manning.com/books/electron-in-action)
 
 # Set up a small project
 - mkdir app
