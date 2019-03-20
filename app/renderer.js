@@ -3,6 +3,8 @@ const button = document.querySelector('.alert');
     alert(__dirname);
 });
 
+const {shell} = require('electron');
+
 // Instantiate the Chromium pareser
 const parser = new DOMParser();
 
@@ -17,21 +19,28 @@ newLinkUrl.addEventListener('keyup', () => {
   newLinkSubmit.disabled = !newLinkUrl.validity.valid;
 })
 
-newLinkForm.addEventListener('submit', event() => {
+newLinkForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const url = newLinkUrl.value;
   // Fetch the content and parse the response as plain text
   fetch(url)
+    .then(validateResponse)
     .then(response => response.text())
     .then(parseResponse)
     .then(findTitle)
     .then(title => storeLink(title, url))
     .then(clearForm)
-    .then(renderLinks);
+    .then(renderLinks)
+    .catch(error => handleError(error, url));
 });
 
+clearStorageButton.addEventListener('click', () => {
+  localStorage.clear();
+  linksSection.innerHTML = '';
+})
+
 const parseResponse = (text) => {
-  return parser.parserFormString(text, 'text/html');
+  return parser.parseFromString(text, 'text/html');
 }
 
 const findTitle = (nodes) => {
@@ -54,14 +63,13 @@ const getLinks = () => {
 }
 
 const convertToElement = (link) => {
-  return '
+  return `
     <div class="link">
-      <h3>${link.title}</h3>
-      <p>
-        <a href="${link.url}">${link.url}</a>
-      </p>
-    </div>
-  '
+    <h3>${link.title}</h3>
+    <p>
+    <a href="${link.url}">${link.url}</a>
+    </p>
+    </div>`;
 }
 
 const renderLinks = () => {
@@ -69,7 +77,24 @@ const renderLinks = () => {
   linksSection.innerHTML = linkElements;
 }
 
-clearStorafeButton.addEventListener('click', () => {
-  localStorage.clear();
-  linkSection.innerHTML = '';
-})
+// handle Error
+const validateResponse = (response) => {
+  if (response.ok) { return response; }
+  throw new Error(`Status code of ${response.status}, ${response.statusText}`);
+}
+
+const handleError = (error, url) => {
+  errorMessage.innerHTML = `Error: ${url}: ${error.message}`.trim();
+  // clear error message
+  setTimeout(() => errorMessage.innerText = null, 5000);
+}
+
+// Open link in the default browser
+linksSection.addEventListener('click', (event) => {
+  if (event.target.href) {
+    event.preventDefault();
+    shell.openExternal(event.target.href);
+  }
+});
+
+renderLinks();

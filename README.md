@@ -10,3 +10,6 @@
 - npm init
 - npm install electron --save //Note: 'save' will add the installed package to the list of dependencies in the package.json.
 - npm start
+
+# How to Debug
+- Open View and chocie Toggle Developer Tool
