@@ -4,11 +4,16 @@ const { app, BrowserWindow } = require('electron');
 // 2. The 'let' statement declares a block scope local variable,
 //    optionally initializing it to a value
 let mainWindow = null;
+var currentPath = process.cwd();
 
 app.on('ready', () => {
-  mainWindow = new BrowserWindow();
+  mainWindow = new BrowserWindow({ show: false });
 
-  mainWindow.loadFile('index.html');
+  mainWindow.webContents.loadFile(currentPath + '/app/index.html');
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
