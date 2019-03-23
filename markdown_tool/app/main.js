@@ -8,6 +8,8 @@ var currentPath = process.cwd();
 
 app.on('ready', () => {
   mainWindow = new BrowserWindow({ show: false });
+  // Debug
+  mainWindow.webContents.openDevTools();
 
   mainWindow.webContents.loadFile(currentPath + '/app/index.html');
 

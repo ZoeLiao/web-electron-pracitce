@@ -15,4 +15,5 @@
 - `npm start`
 
 # How to Debug
-- Open View and chocie Toggle Developer Tool
+- Render procee: Open View and chocie Toggle Developer Tool, or press `Command-Option-I`(Mac)
+- Main process: add `--debug` flag
