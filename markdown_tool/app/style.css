@@ -18,7 +18,6 @@ body {
   position: absolute;
 }
 
-// use the default font of operating system
 body, input {
   font: menu;
 }
@@ -60,7 +59,6 @@ button:disabled {
   position: relative;
 }
 
-// flexbox
 .content {
   height: 100vh;
   display: flex;
