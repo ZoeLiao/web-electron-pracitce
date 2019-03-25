@@ -1,5 +1,6 @@
 const { app, BrowserWindow, dialog } = require('electron');
 const fs = require('fs');
+const windows = new Set();
 
 // 1. Declare here to avoid being collected by GC
 // 2. The 'let' statement declares a block scope local variable,
@@ -8,6 +9,10 @@ let mainWindow = null;
 var currentPath = process.cwd();
 
 app.on('ready', () => {
+  createWindow();
+});
+
+const createOneWindow = () => {
   mainWindow = new BrowserWindow({ show: false });
   // Debug
   //mainWindow.webContents.openDevTools();
@@ -23,10 +28,30 @@ app.on('ready', () => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-});
+};
 
-const getFileFromUser = exports.getFileFromUser = () => {
-  const files = dialog.showOpenDialog(mainWindow, {
+const createWindow = exports.createWindow = () => {
+  let newWindow = new BrowserWindow({ show: false });
+
+  newWindow.loadFile('index.html');
+
+  newWindow.once('ready-to-show', () => {
+    newWindow.show();
+  });
+
+  newWindow.on('closed', () => {
+    windows.delete(newWindow);
+    newWindow = null;
+  });
+
+  windows.add(newWindow);
+  return newWindow;
+}
+
+//const getFileFromUser = exports.getFileFromUser = () => {
+// const files = dialog.showOpenDialog(mainWindow, {
+const getFileFromUser = exports.getFileFromUser = (targetWindow) => {
+ const files = dialog.showOpenDialog(targetWindow, {
     properties: ['openFile'],
     filters: [
       { name: 'Text Files', extensions: ['txt'] },
@@ -38,11 +63,17 @@ const getFileFromUser = exports.getFileFromUser = () => {
     return;
   }
 
-  const file = files[0];
-  const openFile = (file) => {
+  //const file = files[0];
+  //const openFile = (file) => {
+  //  // fs.readFileSync() return a buffer object
+  //  const content = fs.readFileSync(file).toString();
+  //  mainWindow.webContents.send('file-opened', file, content);
+  //};
+  if (files) { openFils(targetWindow, files[0]); }
+  const openFile = exports.openFile = (targetWindow, file) => {
     // fs.readFileSync() return a buffer object
     const content = fs.readFileSync(file).toString();
-    mainWindow.webContents.send('file-opened', file, content);
+    targetWindow.webContents.send('file-opened', file, content);
   };
 
 }
