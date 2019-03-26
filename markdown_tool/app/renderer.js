@@ -3,6 +3,10 @@ const mainProcess = remote.require('./main.js');
 const currentWindow = remote.getCurrentWindow();
 
 const marked = require('marked');
+const path = require('path');
+
+let filePath = null;
+let originalContent = '';
 
 const markdownView = document.querySelector('#markdown');
 const htmlView = document.querySelector('#html');
@@ -31,6 +35,18 @@ openFileButton.addEventListener('click', () => {
 })
 
 ipcRenderer.on('file-opened', (event, file, content) => {
+  filePath = file;
+  originalContent = content;
+
   markdownView.value = content;
   renderMarkdownToHtml(content);
+
+  updateUserInterface();
 });
+
+const updateUserInterface = () => {
+  let title = 'Fire Sale';
+  if (fileiPath) { title = `${path.basename(filePath)} - ${title}`;}
+  // programmatically manipulate the window’s title
+  currentWindow.setTitle(title);
+}
