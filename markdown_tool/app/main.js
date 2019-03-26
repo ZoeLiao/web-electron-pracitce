@@ -12,6 +12,19 @@ app.on('ready', () => {
   createWindow();
 });
 
+// mac
+app.on('window-all-closed', () => {
+  if (process.platform === 'darwin') {
+    return false;
+  }
+  app.quit();
+})
+
+// activate only works on mac
+app.on('activate', (event, hasVisibleWindows) => {
+  if (!hasVisibleWindows) { createWindow(); }
+})
+
 const createOneWindow = () => {
   mainWindow = new BrowserWindow({ show: false });
   // Debug
@@ -31,9 +44,19 @@ const createOneWindow = () => {
 };
 
 const createWindow = exports.createWindow = () => {
-  let newWindow = new BrowserWindow({ show: false });
+  let x, y;
 
-  newWindow.loadFile('index.html');
+  const currentWindow = BrowserWindow.getFocusedWindow();
+
+  if(currentWindow) {
+    const [ currentWindowX, currentWindowY ] = currentWindow.getPosition();
+    x = currentWindowX + 10;
+    y = currentWindowY + 10;
+  }
+
+  let newWindow = new BrowserWindow({ x, y, show: false });
+
+  newWindow.loadFile(currentPath + '/app/index.html');
 
   newWindow.once('ready-to-show', () => {
     newWindow.show();
@@ -69,11 +92,11 @@ const getFileFromUser = exports.getFileFromUser = (targetWindow) => {
   //  const content = fs.readFileSync(file).toString();
   //  mainWindow.webContents.send('file-opened', file, content);
   //};
-  if (files) { openFils(targetWindow, files[0]); }
-  const openFile = exports.openFile = (targetWindow, file) => {
-    // fs.readFileSync() return a buffer object
-    const content = fs.readFileSync(file).toString();
-    targetWindow.webContents.send('file-opened', file, content);
-  };
+  if (files) { openFile(targetWindow, files[0]); }
+};
 
-}
+const openFile = exports.openFile = (targetWindow, file) => {
+  // fs.readFileSync() return a buffer object
+  const content = fs.readFileSync(file).toString();
+  targetWindow.webContents.send('file-opened', file, content);
+};
