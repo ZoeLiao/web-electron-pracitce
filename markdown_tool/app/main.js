@@ -98,5 +98,7 @@ const getFileFromUser = exports.getFileFromUser = (targetWindow) => {
 const openFile = exports.openFile = (targetWindow, file) => {
   // fs.readFileSync() return a buffer object
   const content = fs.readFileSync(file).toString();
+  // setRepresentedFilename: not works in Windows
+  targetWindow.setRepresentedFilename(file);
   targetWindow.webContents.send('file-opened', file, content);
 };

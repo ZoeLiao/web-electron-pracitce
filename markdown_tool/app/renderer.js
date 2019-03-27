@@ -23,9 +23,11 @@ const renderMarkdownToHtml = (markdown) => {
   htmlView.innerHTML = marked(markdown, { sanitize: true});
 };
 
+// keyup: detect the keyboard is pressed or not
 markdownView.addEventListener('keyup', (event) => {
   const currentContent = event.target.value;
   renderMarkdownToHtml(currentContent);
+  updateUserInterface(currentContent !== originalContent);
 });
 
 openFileButton.addEventListener('click', () => {
@@ -44,9 +46,15 @@ ipcRenderer.on('file-opened', (event, file, content) => {
   updateUserInterface();
 });
 
-const updateUserInterface = () => {
+const updateUserInterface = (isEdited) => {
   let title = 'Fire Sale';
-  if (fileiPath) { title = `${path.basename(filePath)} - ${title}`;}
+  if (filePath) { title = `${path.basename(filePath)} - ${title}`;}
+  if (isEdited) { title = `${title} (Edited)`; }
+
   // programmatically manipulate the window’s title
   currentWindow.setTitle(title);
+  currentWindow.setDocumentEdited(isEdited);
+
+  saveMarkdownButton.disabled = !isEdited;
+  revertButton.disabled = !isEdited;
 }
