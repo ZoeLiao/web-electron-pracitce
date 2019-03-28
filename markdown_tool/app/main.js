@@ -25,6 +25,16 @@ app.on('activate', (event, hasVisibleWindows) => {
   if (!hasVisibleWindows) { createWindow(); }
 })
 
+app.on('will-finish-launching', () => {
+  app.on('open-file', (event, file) => {
+    const win = createWindow();
+    win.once('ready-to-show', () => {
+      openFile(win, file);
+    });
+  });
+})
+
+
 const createOneWindow = () => {
   mainWindow = new BrowserWindow({ show: false });
   // Debug
@@ -99,6 +109,7 @@ const openFile = exports.openFile = (targetWindow, file) => {
   // fs.readFileSync() return a buffer object
   const content = fs.readFileSync(file).toString();
   // setRepresentedFilename: not works in Windows
+  app.addRecentDocument(file);
   targetWindow.setRepresentedFilename(file);
   targetWindow.webContents.send('file-opened', file, content);
 };
