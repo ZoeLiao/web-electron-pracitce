@@ -57,6 +57,7 @@ const createWindow = exports.createWindow = () => {
   let x, y;
 
   const currentWindow = BrowserWindow.getFocusedWindow();
+  console.log(currentWindow)
 
   if(currentWindow) {
     const [ currentWindowX, currentWindowY ] = currentWindow.getPosition();
@@ -113,3 +114,38 @@ const openFile = exports.openFile = (targetWindow, file) => {
   targetWindow.setRepresentedFilename(file);
   targetWindow.webContents.send('file-opened', file, content);
 };
+
+const saveHtml = exports.saveHtml = (targetWindow, content) => {
+  const file = dialog.showSaveDialog(targetWindow, {
+    title: 'Save HTML',
+    // getPath: returns the corrent file path based on user's platform
+    // supports: home, desktop, document, userData ...
+    defaultPath: app.getPath('userData'),
+    buttonLabel: 'Save!',
+    filters: [
+      { name: 'HTML Files', extensions: ['html', 'htm']}
+    ]
+  });
+
+  if (!file) return; // cancel dialog
+
+  fs.writeFileSync(file, content);
+};
+
+const saveMarkdown = exports.saveMarkdown = (targetWindow, file, content) => {
+  if (!file) {
+    file = dialog.showSaveDialog(targetWindow, {
+      title: 'Save Markdown',
+      defaultPath: app.getPath('userData'),
+      filers: [
+        { name: 'Markdown Files', extensions: ['md', 'markdown']}
+      ]
+    })
+  };
+
+  if (!file) return;
+
+  // write the contents of the buffer to the filesystem
+  fs.writeFileSync(file, content);
+  openFile(targetWindow, file);
+}

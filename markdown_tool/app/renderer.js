@@ -30,10 +30,13 @@ markdownView.addEventListener('keyup', (event) => {
   updateUserInterface(currentContent !== originalContent);
 });
 
+newFileButton.addEventListener('click', () => {
+  mainProcess.createWindow();
+});
+
 openFileButton.addEventListener('click', () => {
   //mainProcess.getFileFromUser();
   mainProcess.getFileFromUser(currentWindow);
-  //mainProcess.createWindow();
 })
 
 ipcRenderer.on('file-opened', (event, file, content) => {
@@ -48,13 +51,26 @@ ipcRenderer.on('file-opened', (event, file, content) => {
 
 const updateUserInterface = (isEdited) => {
   let title = 'Fire Sale';
-  if (filePath) { title = `${path.basename(filePath)} - ${title}`;}
+  if (filePath) { title = `${path.basename(filePath)} - ${title}`; }
   if (isEdited) { title = `${title} (Edited)`; }
 
-  // programmatically manipulate the window’s title
+  /// programmatically manipulate the window’s title
   currentWindow.setTitle(title);
   currentWindow.setDocumentEdited(isEdited);
 
   saveMarkdownButton.disabled = !isEdited;
   revertButton.disabled = !isEdited;
-}
+};
+
+saveHtmlButton.addEventListener('click', () => {
+  mainProcess.saveHtml(currentWindow, htmlView.innerHTML);
+});
+
+saveMarkdownButton.addEventListener('click', () => {
+  mainProcess.saveMarkdown(currentWindow, filePath, markdownView.value);
+});
+
+revertButton.addEventListener('click', () => {
+  markdownView.value = originalContentl
+  renderMardownToHtml(originalContent);
+});
