@@ -57,7 +57,6 @@ const createWindow = exports.createWindow = () => {
   let x, y;
 
   const currentWindow = BrowserWindow.getFocusedWindow();
-  console.log(currentWindow)
 
   if(currentWindow) {
     const [ currentWindowX, currentWindowY ] = currentWindow.getPosition();
@@ -73,10 +72,33 @@ const createWindow = exports.createWindow = () => {
     newWindow.show();
   });
 
+  newWindow.on('closed', (event) => {
+    // TODO check bug
+    if (newWindow.isDocumentEdited()){
+      event.preventDefault();
+
+      const result = dialog.showMessageBox(newWindow, {
+        type: 'warning',
+        title: 'Quit with Unsaved Changes?',
+        message: 'Your changes will be lost if you do not save.',
+        buttons: [
+          'Quit Anyway',
+          'Cancel',
+        ],
+        defaultId: 0, // Quit Anyway
+        cancelId: 1 // Cancel Anyway
+      });
+
+      if (result === 0) newWindow.destroy();
+    }
+  });
+
+  // stop watching window while it is closed
   newWindow.on('closed', () => {
     windows.delete(newWindow);
+    stopWatchingFile(newWindow);
     newWindow = null;
-  });
+  })
 
   windows.add(newWindow);
   return newWindow;
