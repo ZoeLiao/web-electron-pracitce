@@ -113,3 +113,65 @@ markdownView.addEventListener('drop', (event) => {
   markdownView.classList.remove('drag-over');
   markdownView.classList.remove('drag-error');
 })
+
+const renderFile = (file, content) => {
+  filePath = file;
+  originalContent = content;
+
+  markdownView.value = content;
+  renderMarkdownToHtml(content);
+
+  updateUserInterface(false);
+}
+
+//  set up two IPC listeners and send message
+ipcRenderer.on('file-opened', (event, file, content) => {
+  if (currwntWindow.isDocumentEdited()){
+    const result = remote.dialog.showMessageBox(currentWindow, {
+      type: 'warning',
+      title: 'Are You Sure You Want To Overwrite Current Unsaved Changes?'
+      message: 'Opening a new file in this window will overwrite your unsaved changes. Open this file anyway?',
+      buttons: [
+        'Yes',
+        'Cancel',
+      ],
+      defaultId: 0,
+      cancelId: 1
+    });
+
+    if (result === 1) { return; }
+  }
+  renderFile(file, content);
+});
+
+ipcRenderer.on('file-changed', (event, file, content) => {
+  if (currwntWindow.isDocumentEdited()){
+    const result = remote.dialog.showMessageBox(currentWindow, {
+      type: 'warning',
+      title: 'Are You Sure You Want To Overwrite Current Unsaved Changes?'
+      message: 'Another application has changed this file. Load changes?',
+      buttons: [
+        'Yes',
+        'Cancel',
+      ],
+      defaultId: 0,
+      cancelId: 1
+    });
+
+    if (result === 1) { return; }
+  }
+  renderFile(file, content);
+});
+
+const stratWatchingFile = (targetWindow, file) => {
+  stopWatchingFile(targetWindow);
+
+  const watcher = fs.watch(file, (event) => {
+    if (event === 'change') {
+      const content = fs.readFileSync(file).toString();
+      targetWindow.webContents.send('file-changed', file, content);
+    }
+  });
+
+  openFiles.set(targetWindow, watcher);
+}
