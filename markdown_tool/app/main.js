@@ -1,6 +1,9 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, Menu } = require('electron');
+const applicationMenu = require('./application-menu');
 const fs = require('fs');
+
 const windows = new Set();
+const openFiles = new Map();
 
 // 1. Declare here to avoid being collected by GC
 // 2. The 'let' statement declares a block scope local variable,
@@ -23,7 +26,7 @@ app.on('window-all-closed', () => {
 // activate only works on mac
 app.on('activate', (event, hasVisibleWindows) => {
   if (!hasVisibleWindows) { createWindow(); }
-})
+});
 
 app.on('will-finish-launching', () => {
   app.on('open-file', (event, file) => {
@@ -32,8 +35,12 @@ app.on('will-finish-launching', () => {
       openFile(win, file);
     });
   });
-})
+});
 
+app.on('ready', () => {
+  Menu.setApplicationMenu(applicationMenu);
+  createWindow();
+});
 
 const createOneWindow = () => {
   mainWindow = new BrowserWindow({ show: false });
@@ -171,8 +178,6 @@ const saveMarkdown = exports.saveMarkdown = (targetWindow, file, content) => {
   fs.writeFileSync(file, content);
   openFile(targetWindow, file);
 }
-
-const openFiles = new Map();
 
 const startWatchingFile = (targetWindow, file) => {
   stopWatchingFile(targetWindow);

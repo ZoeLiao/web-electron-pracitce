@@ -71,7 +71,7 @@ saveMarkdownButton.addEventListener('click', () => {
 });
 
 revertButton.addEventListener('click', () => {
-  markdownView.value = originalContentl
+  markdownView.value = originalContent;
   renderMardownToHtml(originalContent);
 });
 
@@ -126,10 +126,10 @@ const renderFile = (file, content) => {
 
 //  set up two IPC listeners and send message
 ipcRenderer.on('file-opened', (event, file, content) => {
-  if (currwntWindow.isDocumentEdited()){
+  if (currentWindow.isDocumentEdited()){
     const result = remote.dialog.showMessageBox(currentWindow, {
       type: 'warning',
-      title: 'Are You Sure You Want To Overwrite Current Unsaved Changes?'
+      title: 'Are You Sure You Want To Overwrite Current Unsaved Changes?',
       message: 'Opening a new file in this window will overwrite your unsaved changes. Open this file anyway?',
       buttons: [
         'Yes',
@@ -145,10 +145,10 @@ ipcRenderer.on('file-opened', (event, file, content) => {
 });
 
 ipcRenderer.on('file-changed', (event, file, content) => {
-  if (currwntWindow.isDocumentEdited()){
+  if (currentWindow.isDocumentEdited()){
     const result = remote.dialog.showMessageBox(currentWindow, {
       type: 'warning',
-      title: 'Are You Sure You Want To Overwrite Current Unsaved Changes?'
+      title: 'Are You Sure You Want To Overwrite Current Unsaved Changes?',
       message: 'Another application has changed this file. Load changes?',
       buttons: [
         'Yes',
@@ -160,18 +160,6 @@ ipcRenderer.on('file-changed', (event, file, content) => {
 
     if (result === 1) { return; }
   }
+
   renderFile(file, content);
 });
-
-const stratWatchingFile = (targetWindow, file) => {
-  stopWatchingFile(targetWindow);
-
-  const watcher = fs.watch(file, (event) => {
-    if (event === 'change') {
-      const content = fs.readFileSync(file).toString();
-      targetWindow.webContents.send('file-changed', file, content);
-    }
-  });
-
-  openFiles.set(targetWindow, watcher);
-}
