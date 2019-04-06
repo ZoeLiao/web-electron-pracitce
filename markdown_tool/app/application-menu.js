@@ -20,7 +20,40 @@ const template = [
         accelerator: 'CommandOrControl+A',
         role: 'selectAll',
       },
+      {
+        label: '復原',
+        accelerator: 'CommandOrControl+Z',
+        role: 'undo',
+      },
+      {
+        label: '重做',
+        accelerator: 'CommandOrControl+R',
+        role: 'redo',
+      },
+      { type: 'separator' },
+      {
+        label: '剪裁',
+        accelerator: 'CommandOrControl+X',
+        role: 'cut',
+      }
     
+    ]
+  },
+
+  {
+    label: 'Window',
+    submenu: [
+      {
+        label: '縮小',
+        accelerator: 'CommandOrControl+M',
+        role: 'minimize',
+      },
+      {
+        label: '關閉',
+        accelerator: 'CommandOrControl+W',
+        role: 'close',
+      },
+
     ]
   }
 ]
