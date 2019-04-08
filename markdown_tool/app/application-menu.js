@@ -42,6 +42,7 @@ const template = [
 
   {
     label: 'Window',
+    role: 'window',
     submenu: [
       {
         label: '縮小',
@@ -58,10 +59,57 @@ const template = [
   }
 ]
 
+// for mac
 if (process.platform === 'darwin') {
   // get the name of the application
-  const name = 'Fire Sale';
-  template.unshift({ label: name });
+  const name = app.getName();
+  template.unshift({
+    label: name,
+    submenu: [
+      {
+        label: `About ${name}`,
+        role: 'about',
+      },
+      { type: 'separator' },
+      {
+        label: 'Services',
+        role: 'services',
+        submenu: [],
+      },
+      { type: 'separator' },
+      {
+        label: `Hide ${name}`,
+        accelerator: 'Command+H',
+        role: 'hide',
+      },
+      {
+        label: 'Hide Others',
+        accelerator: 'Command+Alt+H',
+        role: 'hideothers',
+      },
+      {
+        label: 'Show All',
+        role: 'unhide',
+      },
+      { type: 'separator' },
+      {
+        label: `Quit ${name}`,
+        accelerator: 'Command+Q',
+        click () { app.quit(); } ,
+      },
+
+    ]
+  })
+
+  const windowMenu = template.find(item => item.label === 'Window');
+  windowMenu.role = 'window';
+  windowMenu.submenu.push(
+    { type: 'separator' },
+    {
+      label: 'Bring All to Front',
+      role: 'front',
+    }
+  );
 }
 
 
