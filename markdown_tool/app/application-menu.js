@@ -3,7 +3,8 @@ const mainProcess = require('./main');
 
 const template = [
   {
-    label: 'Edit',
+    label: '編輯',
+    role: 'Edit',
     submenu: [
       {
         label: '複製',
@@ -55,6 +56,22 @@ const template = [
         role: 'close',
       },
 
+    ]
+  },
+  {
+    label: '幫助',
+    role: 'help',
+    submenu: [
+      {
+        label: '訪問網站',
+        click() {console.log('hi!')}
+      },
+      {
+        label: '開發者工具',
+        click(item, focusedWindow) {
+          if (focusedWindow) focusedWindow.webContents.toggleDevTools();
+        }
+      }
     ]
   }
 ]
