@@ -73,6 +73,39 @@ const template = [
         }
       }
     ]
+  },
+  {
+    label: '檔案',
+    submenu: [
+      {
+        label: '新增文件',
+        accelerator: 'CommandOrControl+N',
+        click() {
+          mainProcess.createWindow();
+        }
+      },
+      {
+        label: '打開文件',
+        accelerator: 'CommandOrControl+O',
+        click() {
+          mainProcess.getFileFromUser(focusedWindow)();
+        }
+      },
+      {
+        label: '儲存',
+        accelerator: 'CommandOrControl+S',
+        click(item, focusedWindow) {
+          focusedWindow.webContents.send('save-markdown');
+        }
+      },
+      {
+        label: '轉存HTML',
+        accelerator: 'Shift+CommandOrControl+S',
+        click(item, focusedWindow) {
+          focusedWindow.webContents.send('save-html');
+        }
+      }
+    ]
   }
 ]
 
