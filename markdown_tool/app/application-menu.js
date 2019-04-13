@@ -87,14 +87,29 @@ const template = [
       {
         label: '打開文件',
         accelerator: 'CommandOrControl+O',
-        click() {
-          mainProcess.getFileFromUser(focusedWindow)();
+        click(item, focusedWindow) {
+          if(focusedWindow) {
+            mainProcess.getFileFromUser(focusedWindow)();
+          }
+
+          const newWindow = mainProcess.createWindow();
+
+          newWindow.on('show', () => {
+            mainProcess.getFileFromUser(focusedWindow)();
+          })
         }
       },
       {
         label: '儲存',
         accelerator: 'CommandOrControl+S',
         click(item, focusedWindow) {
+          if(!focusedWindow) {
+            return dialog.showErrorBox(
+              'Cannot Save or Export',
+              'There is currently no active document to save or export.'
+
+            )
+          }
           focusedWindow.webContents.send('save-markdown');
         }
       },
@@ -102,6 +117,13 @@ const template = [
         label: '轉存HTML',
         accelerator: 'Shift+CommandOrControl+S',
         click(item, focusedWindow) {
+          if(!focusedWindow) {
+            return dialog.showErrorBox(
+              'Cannot Save or Export',
+              'There is currently no active document to save or export.'
+
+            )
+          }
           focusedWindow.webContents.send('save-html');
         }
       }
@@ -161,7 +183,6 @@ if (process.platform === 'darwin') {
     }
   );
 }
-
 
 // use in main.js
 module.exports = Menu.buildFromTemplate(template);

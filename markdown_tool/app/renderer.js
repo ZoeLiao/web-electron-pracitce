@@ -1,4 +1,5 @@
 const { remote, ipcRenderer } = require('electron');
+const { Menu } = remote;
 const mainProcess = remote.require('./main.js');
 const currentWindow = remote.getCurrentWindow();
 
@@ -171,3 +172,18 @@ ipcRenderer.on('save-markdown', () => {
 ipcRenderer.on('save-html', () => {
   mainProcess.saveHtml(currentWindow, filePath, markdownView.value);
 });
+
+
+markdownView.addEventListener('contextmenu', (event) => {
+  event.preventDefault();
+  markdownContextMenu.popup();
+})
+
+const markdownContextMenu = Menu.buildFromTemplate([
+  { label: '打開檔案', click() { mainProcess.getFileFromUser(); } },
+  { type: 'separator' },
+  { label: '剪裁', role: 'cut' },
+  { label: '複製', role: 'copy' },
+  { label: '貼上', role: 'paste' },
+  { label: '全選', role: 'selectall' },
+])
