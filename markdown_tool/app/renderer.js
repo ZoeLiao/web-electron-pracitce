@@ -122,6 +122,9 @@ const renderFile = (file, content) => {
   markdownView.value = content;
   renderMarkdownToHtml(content);
 
+  showFileButton.disabled = false;
+  openInDefaultButton.disabled = false;
+
   updateUserInterface(false);
 }
 
@@ -187,3 +190,21 @@ const markdownContextMenu = Menu.buildFromTemplate([
   { label: '貼上', role: 'paste' },
   { label: '全選', role: 'selectall' },
 ])
+
+
+const showFile = () => {
+  if(!filePath) {
+    return alert('This file has not been saved to the filesystem.');
+  }
+  shell.showItemInFolder(filePath);
+}
+
+const openInDefaultApplication = () => {
+  if(!filePath) {
+    return alert('This file has not been saved to the filesystem.');
+  }
+  shell.openItem(filePath);
+}
+
+showFileButton.addEventListener('click', showFile);
+openInDefaultButton.addEventListener('click', openInDefaultApplication);
