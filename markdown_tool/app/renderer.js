@@ -184,6 +184,8 @@ markdownView.addEventListener('contextmenu', (event) => {
 
 const markdownContextMenu = Menu.buildFromTemplate([
   { label: '打開檔案', click() { mainProcess.getFileFromUser(); } },
+  { label: '從資料夾打開檔案', click: showFile },
+  { label: '從預設編輯器打開檔案', click: openInDefaultApplication },
   { type: 'separator' },
   { label: '剪裁', role: 'cut' },
   { label: '複製', role: 'copy' },

@@ -119,17 +119,49 @@ const template = [
         click(item, focusedWindow) {
           if(!focusedWindow) {
             return dialog.showErrorBox(
-              'Cannot Save or Export',
+              'Cannot Show File\'s Location',
               'There is currently no active document to save or export.'
 
             )
           }
           focusedWindow.webContents.send('save-html');
         }
+      },
+      { type: 'separator' },
+      {
+        label: '顯示檔案',
+        accelerator: 'Shift+CommandOrControl+S',
+        click(item, focusedWindow) {
+          if(!focusedWindow) {
+            return dialog.showErrorBox(
+              'Cannot Show File\'s Location',
+              'There is currently no active document to save or export.'
+
+            )
+          }
+          focusedWindow.webContents.send('show-file');
+        }
+      },
+      {
+        label: '用預設編輯器打開檔案',
+        accelerator: 'Shift+CommandOrControl+S',
+        click(item, focusedWindow) {
+          if(!focusedWindow) {
+            return dialog.showErrorBox(
+              'Cannot Show File\'s Location',
+              'There is currently no active document to save or export.'
+
+            )
+          }
+          focusedWindow.webContents.send('open-in-default');
+        }
       }
     ]
   }
 ]
+
+ipcRenderer.on('show-file', showFile);
+ipcRenderer.on('open-in-defualt', openInDefaultApplication);
 
 // for mac
 if (process.platform === 'darwin') {
