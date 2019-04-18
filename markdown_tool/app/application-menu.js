@@ -160,9 +160,6 @@ const template = [
   }
 ]
 
-ipcRenderer.on('show-file', showFile);
-ipcRenderer.on('open-in-defualt', openInDefaultApplication);
-
 // for mac
 if (process.platform === 'darwin') {
   // get the name of the application

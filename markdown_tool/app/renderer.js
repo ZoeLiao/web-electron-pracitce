@@ -179,19 +179,23 @@ ipcRenderer.on('save-html', () => {
 
 markdownView.addEventListener('contextmenu', (event) => {
   event.preventDefault();
-  markdownContextMenu.popup();
+  //markdownContextMenu.popup();
+  createContextMenu().popup();
 })
 
-const markdownContextMenu = Menu.buildFromTemplate([
-  { label: '打開檔案', click() { mainProcess.getFileFromUser(); } },
-  { label: '從資料夾打開檔案', click: showFile },
-  { label: '從預設編輯器打開檔案', click: openInDefaultApplication },
-  { type: 'separator' },
-  { label: '剪裁', role: 'cut' },
-  { label: '複製', role: 'copy' },
-  { label: '貼上', role: 'paste' },
-  { label: '全選', role: 'selectall' },
-])
+//const markdownContextMenu = Menu.buildFromTemplate([
+const createContextMenu = () => {
+    return Menu.buildFromTemplate([
+      { label: '打開檔案', click() { mainProcess.getFileFromUser(); } },
+      { label: '從資料夾打開檔案', click: showFile, enabled: !!filePath },
+      { label: '從預設編輯器打開檔案', click: openInDefaultApplication },
+      { type: 'separator' },
+      { label: '剪裁', role: 'cut' },
+      { label: '複製', role: 'copy' },
+      { label: '貼上', role: 'paste' },
+      { label: '全選', role: 'selectall' },
+    ])
+}
 
 
 const showFile = () => {
@@ -210,3 +214,6 @@ const openInDefaultApplication = () => {
 
 showFileButton.addEventListener('click', showFile);
 openInDefaultButton.addEventListener('click', openInDefaultApplication);
+
+ipcRenderer.on('show-file', showFile);
+ipcRenderer.on('open-in-defualt', openInDefaultApplication);
