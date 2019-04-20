@@ -1,164 +1,181 @@
-const {app, BrowserWindow, Menu, shell } = require('electron');
+const {
+    app,
+    BrowserWindow,
+    dialog,
+    Menu,
+    shell } = require('electron');
 const mainProcess = require('./main');
 
-const template = [
-  {
-    label: '編輯',
-    role: 'Edit',
-    submenu: [
-      {
-        label: '複製',
-        accelerator: 'CommandOrControl+C',
-        role: 'copy',
-      },
-      {
-        label: '貼上',
-        accelerator: 'CommandOrControl+V',
-        role: 'paste',
-      },
-      {
-        label: '全選',
-        accelerator: 'CommandOrControl+A',
-        role: 'selectAll',
-      },
-      {
-        label: '復原',
-        accelerator: 'CommandOrControl+Z',
-        role: 'undo',
-      },
-      {
-        label: '重做',
-        accelerator: 'CommandOrControl+R',
-        role: 'redo',
-      },
-      { type: 'separator' },
-      {
-        label: '剪裁',
-        accelerator: 'CommandOrControl+X',
-        role: 'cut',
-      }
-    
-    ]
-  },
+const createApplicationMenu = () => {
+    const hasOneOrMoreWindows = !!BrowserWindow.getAllWindows().length;
+    const focusedWindow = BrowserWindow.getFocusedWindow();
+    const hasFilePath = !!(focusedWindow && focusedWindow.getRepresentedFilename());
 
-  {
-    label: 'Window',
-    role: 'window',
-    submenu: [
+    const template = [
       {
-        label: '縮小',
-        accelerator: 'CommandOrControl+M',
-        role: 'minimize',
-      },
-      {
-        label: '關閉',
-        accelerator: 'CommandOrControl+W',
-        role: 'close',
-      },
-
-    ]
-  },
-  {
-    label: '幫助',
-    role: 'help',
-    submenu: [
-      {
-        label: '訪問網站',
-        click() {console.log('hi!')}
-      },
-      {
-        label: '開發者工具',
-        click(item, focusedWindow) {
-          if (focusedWindow) focusedWindow.webContents.toggleDevTools();
-        }
-      }
-    ]
-  },
-  {
-    label: '檔案',
-    submenu: [
-      {
-        label: '新增文件',
-        accelerator: 'CommandOrControl+N',
-        click() {
-          mainProcess.createWindow();
-        }
-      },
-      {
-        label: '打開文件',
-        accelerator: 'CommandOrControl+O',
-        click(item, focusedWindow) {
-          if(focusedWindow) {
-            mainProcess.getFileFromUser(focusedWindow)();
+        label: '編輯',
+        role: 'Edit',
+        submenu: [
+          {
+            label: '複製',
+            accelerator: 'CommandOrControl+C',
+            role: 'copy',
+          },
+          {
+            label: '貼上',
+            accelerator: 'CommandOrControl+V',
+            role: 'paste',
+          },
+          {
+            label: '全選',
+            accelerator: 'CommandOrControl+A',
+            role: 'selectAll',
+          },
+          {
+            label: '復原',
+            accelerator: 'CommandOrControl+Z',
+            role: 'undo',
+          },
+          {
+            label: '重做',
+            accelerator: 'CommandOrControl+R',
+            role: 'redo',
+          },
+          { type: 'separator' },
+          {
+            label: '剪裁',
+            accelerator: 'CommandOrControl+X',
+            role: 'cut',
           }
+        
+        ]
+      },
 
-          const newWindow = mainProcess.createWindow();
+      {
+        label: 'Window',
+        role: 'window',
+        submenu: [
+          {
+            label: '縮小',
+            accelerator: 'CommandOrControl+M',
+            role: 'minimize',
+          },
+          {
+            label: '關閉',
+            accelerator: 'CommandOrControl+W',
+            role: 'close',
+          },
 
-          newWindow.on('show', () => {
-            mainProcess.getFileFromUser(focusedWindow)();
-          })
-        }
+        ]
       },
       {
-        label: '儲存',
-        accelerator: 'CommandOrControl+S',
-        click(item, focusedWindow) {
-          if(!focusedWindow) {
-            return dialog.showErrorBox(
-              'Cannot Save or Export',
-              'There is currently no active document to save or export.'
-
-            )
+        label: '幫助',
+        role: 'help',
+        submenu: [
+          {
+            label: '訪問網站',
+            click() {console.log('hi!')}
+          },
+          {
+            label: '開發者工具',
+            click(item, focusedWindow) {
+              if (focusedWindow) focusedWindow.webContents.toggleDevTools();
+            }
           }
-          focusedWindow.webContents.send('save-markdown');
-        }
+        ]
       },
       {
-        label: '轉存HTML',
-        accelerator: 'Shift+CommandOrControl+S',
-        click(item, focusedWindow) {
-          if(!focusedWindow) {
-            return dialog.showErrorBox(
-              'Cannot Show File\'s Location',
-              'There is currently no active document to save or export.'
+        label: '檔案',
+        submenu: [
+          {
+            label: '新增文件',
+            accelerator: 'CommandOrControl+N',
+            click() {
+              mainProcess.createWindow();
+            }
+          },
+          {
+            label: '打開文件',
+            accelerator: 'CommandOrControl+O',
+            click(item, focusedWindow) {
+              if(focusedWindow) {
+                mainProcess.getFileFromUser(focusedWindow)();
+              }
 
-            )
-          }
-          focusedWindow.webContents.send('save-html');
-        }
+              const newWindow = mainProcess.createWindow();
+
+              newWindow.on('show', () => {
+                mainProcess.getFileFromUser(focusedWindow)();
+              })
+            }
+          },
+          {
+            label: '儲存',
+            accelerator: 'CommandOrControl+S',
+            enabled: hasOneOrMoreWindows,
+            click(item, focusedWindow) {
+              if(!focusedWindow) {
+                return dialog.showErrorBox(
+                  'Cannot Save or Export',
+                  'There is currently no active document to save or export.'
+
+                )
+              }
+              focusedWindow.webContents.send('save-markdown');
+            }
+          },
+          {
+            label: '轉存HTML',
+            accelerator: 'Shift+CommandOrControl+S',
+            enabled: hasOneOrMoreWindows,
+            click(item, focusedWindow) {
+              if(!focusedWindow) {
+                return dialog.showErrorBox(
+                  'Cannot Show File\'s Location',
+                  'There is currently no active document to save or export.'
+
+                )
+              }
+              focusedWindow.webContents.send('save-html');
+            }
+          },
+          { type: 'separator' },
+          {
+            label: '顯示檔案',
+            enabled: hasFilePath,
+            accelerator: 'Shift+CommandOrControl+S',
+            click(item, focusedWindow) {
+              if(!focusedWindow) {
+                return dialog.showErrorBox(
+                  'Cannot Show File\'s Location',
+                  'There is currently no active document to save or export.'
+
+                )
+              }
+              focusedWindow.webContents.send('show-file');
+            }
+          },
+          {
+            label: '用預設編輯器打開檔案',
+            accelerator: 'Shift+CommandOrControl+S',
+            enabled: hasFilePath,
+            click(item, focusedWindow) {
+              if(!focusedWindow) {
+                return dialog.showErrorBox(
+                  'Cannot Show File\'s Location',
+                  'There is currently no active document to save or export.'
+
+                )
+              }
+              focusedWindow.webContents.send('open-in-default');
+            },
+          },
+        ],
       },
-      { type: 'separator' },
-      {
-        label: '顯示檔案',
-        accelerator: 'Shift+CommandOrControl+S',
-        click(item, focusedWindow) {
-          if(!focusedWindow) {
-            return dialog.showErrorBox(
-              'Cannot Show File\'s Location',
-              'There is currently no active document to save or export.'
+    ];
 
-            )
-          }
-          focusedWindow.webContents.send('show-file');
-        }
-      },
-      {
-        label: '用預設編輯器打開檔案',
-        accelerator: 'Shift+CommandOrControl+S',
-        click(item, focusedWindow) {
-          if(!focusedWindow) {
-            return dialog.showErrorBox(
-              'Cannot Show File\'s Location',
-              'There is currently no active document to save or export.'
-
-            )
-          }
-          focusedWindow.webContents.send('open-in-default');
-        }
-      }
-    ]
-  }
-]
+    return Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
 
 // for mac
 if (process.platform === 'darwin') {
@@ -214,4 +231,5 @@ if (process.platform === 'darwin') {
 }
 
 // use in main.js
-module.exports = Menu.buildFromTemplate(template);
+//module.exports = Menu.buildFromTemplate(template);
+module.exports = createApplicationMenu;
