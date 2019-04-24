@@ -1,5 +1,6 @@
 const { app, BrowserWindow, dialog, Menu } = require('electron');
-const applicationMenu = require('./application-menu');
+//const applicationMenu = require('./application-menu');
+const createApplicationMenu = require('./application-menu');
 const fs = require('fs');
 
 const windows = new Set();
@@ -12,6 +13,7 @@ let mainWindow = null;
 var currentPath = process.cwd();
 
 app.on('ready', () => {
+  createApplicationMenu();
   createWindow();
 });
 
@@ -38,7 +40,7 @@ app.on('will-finish-launching', () => {
 });
 
 app.on('ready', () => {
-  Menu.setApplicationMenu(applicationMenu);
+  //Menu.setApplicationMenu(applicationMenu);
   createWindow();
 });
 
@@ -79,6 +81,8 @@ const createWindow = exports.createWindow = () => {
     newWindow.show();
   });
 
+  newWindow.on('focus', createApplicationMenu);
+
   newWindow.on('closed', (event) => {
     // TODO check bug
     if (newWindow.isDocumentEdited()){
@@ -103,6 +107,8 @@ const createWindow = exports.createWindow = () => {
   // stop watching window while it is closed
   newWindow.on('closed', () => {
     windows.delete(newWindow);
+    createApplicationMenu();
+
     stopWatchingFile(newWindow);
     newWindow = null;
   })
@@ -138,10 +144,12 @@ const getFileFromUser = exports.getFileFromUser = (targetWindow) => {
 const openFile = exports.openFile = (targetWindow, file) => {
   // fs.readFileSync() return a buffer object
   const content = fs.readFileSync(file).toString();
+  startWatchingFile(targetWindow, file);
   // setRepresentedFilename: not works in Windows
   app.addRecentDocument(file);
   targetWindow.setRepresentedFilename(file);
   targetWindow.webContents.send('file-opened', file, content);
+  createApplicationMenu();
 };
 
 const saveHtml = exports.saveHtml = (targetWindow, content) => {
